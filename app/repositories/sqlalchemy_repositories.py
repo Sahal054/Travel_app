@@ -7,7 +7,7 @@ from geoalchemy2 import WKTElement
 
 from app.models.place import Place
 from app.models.saved_reel import ReelStatus, SavedReel
-from app.repositories  import (
+from app.repositories.interfaces import (
     PlaceCandidate,
     PlaceRepository,
     SavedReelCreate,
@@ -15,18 +15,14 @@ from app.repositories  import (
 )
 
 
-
-
-
-
 class SqlAlchemyPlaceRepository(PlaceRepository):
-    def __int__(self,session :AsyncSession) ->None:
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
-    async def get_by_google_place_id(self,google_place_id :str) -> Place |None:
+
+    async def get_by_google_place_id(self, google_place_id: str) -> Place | None:
         stmt = select(Place).where(Place.google_place_id == google_place_id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
-    
 
     async def create(self, data: PlaceCandidate) -> Place:
         point = WKTElement(f"POINT({data.longitude} {data.latitude})", srid=4326)
@@ -43,7 +39,7 @@ class SqlAlchemyPlaceRepository(PlaceRepository):
         await self.session.commit()
         await self.session.refresh(place)
         return place
-            
+
     async def get_or_create(self, data: PlaceCandidate) -> Place:
         existing = await self.get_by_google_place_id(data.google_place_id)
         if existing:
@@ -60,18 +56,20 @@ class SqlAlchemyPlaceRepository(PlaceRepository):
 
 
 class SqlAlchemySavedReelRepository(SavedReelRepository):
-    def __init__(self,session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
-    
-    async def get_by_platform_and_url (self, platform:str , reel_url:str ) -> SavedReel | None:
-        smt = select(SavedReel).where(
+
+    async def get_by_platform_and_url(
+        self, platform: str, reel_url: str
+    ) -> SavedReel | None:
+        stmt = select(SavedReel).where(
             SavedReel.platform == platform,
             SavedReel.reel_url == reel_url,
         )
-        result = await self.session.execute(smt)
+        result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
-    
-    async def create(self, data: SavedReelCreate) -> SavedReel: 
+
+    async def create(self, data: SavedReelCreate) -> SavedReel:
         saved_reel = SavedReel(
             platform=data.platform,
             reel_url=data.reel_url,
@@ -88,7 +86,6 @@ class SqlAlchemySavedReelRepository(SavedReelRepository):
             place_id=data.place_id,
             user_id=data.user_id,
         )
-
         self.session.add(saved_reel)
         await self.session.commit()
         await self.session.refresh(saved_reel)
