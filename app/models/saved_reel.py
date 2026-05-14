@@ -43,8 +43,8 @@ class SavedReel(Base, TimestampMixin):
     )
     media_storage_path: Mapped[str | None] = mapped_column(String(1024))
 
-    place_id: Mapped[int | None] = mapped_column(ForeignKey("places.id"))
-    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    place_id: Mapped[int | None] = mapped_column(ForeignKey("places.id", ondelete="SET NULL"))
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
 
     place = relationship("Place")
     user = relationship("User")

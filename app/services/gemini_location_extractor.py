@@ -93,9 +93,10 @@ class GeminiLocationExtractor:
         prompt = self._build_prompt(metadata_text)
         contents = self._build_contents(prompt, video_path)
 
+        tools = [types.Tool(google_search=types.GoogleSearch())] if self.enable_search_grounding else None
         config = types.GenerateContentConfig(
             temperature=0.2,
-            tools=[types.Tool(google_search=types.GoogleSearch())],
+            tools=tools,
         )
         response = self.client.models.generate_content(
             model=model_name,

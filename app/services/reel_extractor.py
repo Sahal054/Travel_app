@@ -95,10 +95,16 @@ class YtDlpReelExtractor:
         path = Path(prepared)
         if path.exists():
             return path
-
         matches = sorted(temp_dir.glob("*"))
         if not matches:
             raise FileNotFoundError("No downloaded media file found")
+
+        video_exts = {".mp4", ".mkv", ".mov", ".webm", ".m4v"}
+        for match in matches:
+            if match.suffix.lower() in video_exts:
+                return match
+
+        # Fallback to first file if no known video extension is present
         return matches[0]
 
     def _load_captions(self, temp_dir: Path) -> list[str]:
