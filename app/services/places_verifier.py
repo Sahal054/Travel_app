@@ -136,9 +136,9 @@ class GooglePlacesVerifier:
             }
 
         resp = await client.post(url, json=body, headers=headers)
+
+        resp.raise_for_status()
         
-        if resp.status_code != 200:
-            return []
             
         data = resp.json()
         return data.get("places", [])
