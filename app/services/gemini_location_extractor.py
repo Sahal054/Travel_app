@@ -2,17 +2,19 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import json
+import logging
 import mimetypes
 from dataclasses import dataclass
 from pathlib import Path
-from google.genai import types
 from typing import Any
 
 from google import genai
+from google.genai import types
 from pydantic import BaseModel, Field, ValidationError
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -93,6 +95,23 @@ class GeminiLocationExtractor:
         prompt = self._build_prompt(metadata_text)
         contents = self._build_contents(prompt, video_path)
 
+        media_bytes = video_path.stat().st_size if video_path.exists() else None
+        media_included = (
+            video_path.exists()
+            and media_bytes is not None
+            and media_bytes <= self.max_media_bytes
+        )
+        logger.info(
+            "gemini_request",
+            extra={
+                "event": "gemini_request",
+                "model_name": model_name,
+                "grounding_enabled": self.enable_search_grounding,
+                "media_included": media_included,
+                "media_bytes": media_bytes,
+            },
+        )
+
         tools = [types.Tool(google_search=types.GoogleSearch())] if self.enable_search_grounding else None
         config = types.GenerateContentConfig(
             temperature=0.2,
@@ -106,6 +125,15 @@ class GeminiLocationExtractor:
 
         raw_text = self._get_response_text(response)
         schema = self._parse_response(raw_text)
+        logger.info(
+            "gemini_response",
+            extra={
+                "event": "gemini_response",
+                "model_name": model_name,
+                "language": schema.language,
+                "candidate_count": len(schema.candidates),
+            },
+        )
         candidates = [
             LocationCandidate(
                 place_name=item.place_name,

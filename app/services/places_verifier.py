@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import math
 from dataclasses import dataclass
 from typing import Any
@@ -8,6 +9,8 @@ import httpx
 
 from app.core.config import settings
 from app.services.gemini_location_extractor import LocationCandidate
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -52,7 +55,21 @@ class GooglePlacesVerifier:
     async def resolve_best(
         self, candidates: list[LocationCandidate]
     ) -> PlaceVerificationResult:
+        logger.info(
+            "places_verification_start",
+            extra={
+                "event": "places_verification_start",
+                "candidate_count": len(candidates),
+            },
+        )
         if not candidates:
+            logger.warning(
+                "places_verification_failed",
+                extra={
+                    "event": "places_verification_failed",
+                    "reason": "no_candidates",
+                },
+            )
             return PlaceVerificationResult(
                 success=False,
                 place=None,
@@ -82,12 +99,27 @@ class GooglePlacesVerifier:
                 await client_to_use.aclose()
 
         if not best:
+            logger.warning(
+                "places_verification_failed",
+                extra={
+                    "event": "places_verification_failed",
+                    "reason": "no_matches",
+                },
+            )
             return PlaceVerificationResult(
                 success=False,
                 place=None,
                 error="No Places results matched candidates",
             )
 
+        logger.info(
+            "places_verification_success",
+            extra={
+                "event": "places_verification_success",
+                "place_id": best.google_place_id,
+                "score": round(best.score, 3),
+            },
+        )
         return PlaceVerificationResult(success=True, place=best, error=None)
 
     def _build_query(self, candidate: LocationCandidate) -> str:
@@ -138,7 +170,7 @@ class GooglePlacesVerifier:
         resp = await client.post(url, json=body, headers=headers)
 
         resp.raise_for_status()
-        
+         
             
         data = resp.json()
         return data.get("places", [])

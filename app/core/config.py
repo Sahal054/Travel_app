@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     )
     gemini_api_key: str | None = None
     google_maps_api_key: str | None = None
+    log_level: str = "INFO"
 
     media_storage_backend: str = "local"  # "local" or "s3"
     media_local_dir: str = "/tmp/roamy_media"
