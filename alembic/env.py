@@ -1,10 +1,68 @@
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from alembic import context
-from geoalchemy2 import alembic_helpers
+from app.models.base import Base
+from app.models import place, saved_reel, user  # noqa: F401
+
+POSTGIS_TABLES = {
+    "spatial_ref_sys",
+    "geometry_columns",
+    "geography_columns",
+    "raster_columns",
+    "raster_overviews",
+    "topology",
+}
+
+TIGER_TABLES = {
+    "addr",
+    "addrfeat",
+    "bg",
+    "county",
+    "county_lookup",
+    "countysub_lookup",
+    "cousub",
+    "direction_lookup",
+    "edges",
+    "faces",
+    "featnames",
+    "geocode_settings",
+    "geocode_settings_default",
+    "layer",
+    "loader_lookuptables",
+    "loader_platform",
+    "loader_variables",
+    "pagc_gaz",
+    "pagc_lex",
+    "pagc_rules",
+    "place",
+    "place_lookup",
+    "secondary_unit_lookup",
+    "state",
+    "state_lookup",
+    "street_type_lookup",
+    "tabblock",
+    "tabblock20",
+    "tract",
+    "zcta5",
+    "zip_lookup",
+    "zip_lookup_all",
+    "zip_lookup_base",
+    "zip_state",
+    "zip_state_loc",
+}
+
+
+def include_object(obj, name, type_, reflected, compare_to):
+    if type_ == "table" and name in POSTGIS_TABLES:
+        return False
+    if type_ == "table" and name in TIGER_TABLES:
+        return False
+    if type_ == "table" and getattr(obj, "schema", None) in {"tiger", "tiger_data", "topology"}:
+        return False
+    return True
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -19,28 +77,12 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app.models import Base  # imports models via app/models/__init__.py
-
 target_metadata = Base.metadata
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-
-def include_object(obj, name, obj_type, reflected, compare_to):
-    # Limit autogenerate to app tables while honoring GeoAlchemy exclusions.
-    if not alembic_helpers.include_object(obj, name, obj_type, reflected, compare_to):
-        return False
-
-    if obj_type == "table":
-        return name in target_metadata.tables
-
-    table = getattr(obj, "table", None)
-    if table is not None:
-        return table.name in target_metadata.tables
-
-    return compare_to is not None
-
 
 
 def run_migrations_offline() -> None:
@@ -58,9 +100,8 @@ def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
-        render_item=alembic_helpers.render_item,
-        include_object=include_object,
         target_metadata=target_metadata,
+        include_object=include_object,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -86,7 +127,6 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            render_item=alembic_helpers.render_item,
             include_object=include_object,
         )
 
