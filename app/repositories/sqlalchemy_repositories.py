@@ -99,3 +99,11 @@ class SqlAlchemySavedReelRepository(SavedReelRepository):
         await self.session.commit()
         await self.session.refresh(saved_reel)
         return saved_reel
+    
+
+    async def get_by_reel_url(self, reel_url: str) -> SavedReel | None:
+        from sqlalchemy.orm import selectinload
+        # We use selectinload('place') so the Place location data is loaded immediately
+        stmt = select(SavedReel).where(SavedReel.reel_url == reel_url).options(selectinload(SavedReel.place))
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()

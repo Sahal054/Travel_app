@@ -31,3 +31,6 @@ Thumbs.db
 # Logs and databases
 *.sqlite3
 *.log
+
+#removing local files
+.roamy_media/

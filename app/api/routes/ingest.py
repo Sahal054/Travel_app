@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 import httpx
+import logging
 
 from app.db.session import get_db_session
 from app.repositories.sqlalchemy_repositories import (
@@ -11,6 +12,7 @@ from app.repositories.sqlalchemy_repositories import (
 from app.schemas.ingest import IngestReelRequest, IngestReelResponse, PlaceSummary
 from app.services.ingestion_service import IngestionService, IngestionValidationError
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/ingest", tags=["ingest"])
 
 
@@ -31,10 +33,13 @@ async def ingest_reel(
     try:
         result = await service.ingest_reel(reel_url=str(payload.reel_url))
     except httpx.HTTPError as exc:
+        logger.error(f"Upstream API failure: {exc}", exc_info=True)
         raise HTTPException(status_code=502, detail="Upstream API failure") from exc
     except (IngestionValidationError, ValidationError, ValueError) as exc:
+        logger.error(f"Validation error: {exc}", exc_info=True)
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:
+        logger.error(f"Internal server error: {exc}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error") from exc
 
     place_summary = PlaceSummary(

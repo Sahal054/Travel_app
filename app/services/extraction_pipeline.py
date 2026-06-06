@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from app.core.config import settings
 from app.services.gemini_location_extractor import (
     GeminiLocationExtractor,
     LocationCandidate,
@@ -21,6 +23,7 @@ class ReelExtractionResult:
     candidates: list[LocationCandidate]
     raw_info: dict
     raw_gemini_response: str
+    video_path: Path  # Path to persisted video file
 
 
 class ExtractionPipeline:
@@ -52,6 +55,12 @@ class ExtractionPipeline:
                 video_path=download.video_path,
                 metadata_text=text_blob,
             )
+            
+            # Copy video file to persistent location before temp dir is cleaned up
+            cache_dir = Path(settings.media_local_dir) / ".extraction_cache"
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            persisted_video = cache_dir / download.video_path.name
+            shutil.copy2(download.video_path, persisted_video)
 
         return ReelExtractionResult(
             reel_url=reel_url,
@@ -60,6 +69,7 @@ class ExtractionPipeline:
             candidates=location_result.candidates,
             raw_info=download.raw_info,
             raw_gemini_response=location_result.raw_response,
+            video_path=persisted_video,
         )
 
     @staticmethod
