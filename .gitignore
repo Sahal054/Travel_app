@@ -33,4 +33,4 @@ Thumbs.db
 *.log
 
 #removing local files
-.roamy_media/
+roamy_media/
