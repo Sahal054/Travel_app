@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: roamy_api
+    container_name: travelling_salesman_api
     env_file: .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -16,14 +16,14 @@ services:
     volumes:
       - ./app:/app/app
       - ./alembic:/app/alembic
-      - ./roamy_media:/tmp/roamy_media
+      - ./ts_media:/tmp/ts_media
     depends_on:
       - db
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   db:
     image: postgis/postgis:16-3.4
-    container_name: roamy_db
+    container_name: travelling_salesman_db
     env_file: .env.db
     ports:
       - "5432:5432"
