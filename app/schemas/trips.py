@@ -1,5 +1,12 @@
-from pydantic import BaseModel, Field
+from enum import Enum
 from typing import List
+
+from pydantic import BaseModel, Field
+
+
+class RouteMode(str, Enum):
+    quickest = "quickest"
+    scenic = "scenic"
 
 
 class TripPlanRequest(BaseModel):
@@ -7,8 +14,7 @@ class TripPlanRequest(BaseModel):
     origin_lng: float = Field(..., ge=-180, le=180)
     dest_lat: float = Field(..., ge=-90, le=90)
     dest_lng: float = Field(..., ge=-180, le=180)
-    search_radius_meters: int = Field(default=2000, ge=100, le=50000)
-    poi_type: str = Field(..., min_length=1, max_length=50)
+    route_mode: RouteMode = RouteMode.scenic
 
 
 class InjectedWaypoint(BaseModel):
@@ -24,3 +30,4 @@ class TripPlanResponse(BaseModel):
     injected_poi_names: List[str]
     native_maps_url: str
     waypoints: List[InjectedWaypoint]
+    cache_hit: bool
