@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+
+/* Remove default body margin so the map fills the viewport */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Prevent the Mapbox canvas leaking outside its container */
+.mapboxgl-map {
+  position: absolute;
+  inset: 0;
+}
+
+/* Thin dark scrollbar for the side panel */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
