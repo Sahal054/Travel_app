@@ -265,7 +265,3 @@ TravelApp/
 | `NEXT_PUBLIC_API_URL` | ✅ (frontend) | Backend base URL |
 
 ---
-
-## License
-
-MIT
