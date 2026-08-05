@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     # Comma-separated origins allowed to call the API
     allowed_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
+    jwt_secret: str = "change-me-in-production-use-a-long-random-string"
+    jwt_expire_minutes: int = 60 * 24 * 7  # 7 days
+
     media_storage_backend: str = "local"  # "local" or "s3"
     media_local_dir: str = "/tmp/ts_media"
 

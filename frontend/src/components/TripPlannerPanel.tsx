@@ -99,7 +99,7 @@ export default function TripPlannerPanel({ onTripPlanned, onCoordinatesChange, i
     origin.lat && origin.lng && dest.lat && dest.lng && !loading;
 
   return (
-    <aside className="absolute left-4 top-16 bottom-4 w-80 z-10 flex flex-col gap-3 overflow-y-auto">
+    <aside className="absolute left-4 top-20 bottom-4 w-80 z-10 flex flex-col gap-3 overflow-y-auto">
       {/* Header card */}
       <div className="rounded-2xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 p-5 shadow-2xl">
         <p className="text-xs font-semibold text-emerald-400 tracking-widest uppercase mb-1">

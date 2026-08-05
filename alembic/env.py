@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from app.models.base import Base
-from app.models import place, route_cache, saved_reel, user  # noqa: F401
+from app.models import place, route_cache, saved_reel, user, itinerary  # noqa: F401
 
 POSTGIS_TABLES = {
     "spatial_ref_sys",

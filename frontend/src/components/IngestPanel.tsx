@@ -90,7 +90,7 @@ export default function IngestPanel({ onPlaceExtracted }: Props) {
   }
 
   return (
-    <aside className="absolute left-4 top-16 bottom-4 w-80 z-10 flex flex-col gap-3 overflow-y-auto">
+    <aside className="absolute left-4 top-20 bottom-4 w-80 z-10 flex flex-col gap-3 overflow-y-auto">
       {/* Header */}
       <div className="rounded-2xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 p-5 shadow-2xl">
         <p className="text-xs font-semibold text-pink-400 tracking-widest uppercase mb-1">Phase 1</p>
@@ -217,6 +217,18 @@ export default function IngestPanel({ onPlaceExtracted }: Props) {
                        font-semibold py-2.5 text-sm transition-colors"
           >
             Plan a Route Here →
+          </button>
+          <button
+            onClick={() => {
+              const dest = [result.place_name, result.city, result.country]
+                .filter(Boolean)
+                .join(', ');
+              router.push(`/itinerary?destination=${encodeURIComponent(dest)}`);
+            }}
+            className="w-full rounded-xl bg-violet-600 hover:bg-violet-500 text-white
+                       font-semibold py-2.5 text-sm transition-colors"
+          >
+            ✨ Generate Itinerary →
           </button>
         </div>
       )}

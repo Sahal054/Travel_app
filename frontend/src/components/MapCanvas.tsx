@@ -6,6 +6,7 @@ import type { ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import TripPlannerPanel from './TripPlannerPanel';
 import WaypointMarker from './WaypointMarker';
+import RoutePolyline from './RoutePolyline';
 import NavBar from './NavBar';
 import type { TripPlanResponse } from '@/lib/types';
 
@@ -90,6 +91,11 @@ export default function MapCanvas({
               <span className="text-[10px] text-white font-bold bg-rose-600 rounded px-1 mt-0.5">B</span>
             </div>
           </Marker>
+        )}
+
+        {/* Route polyline (glow effect) */}
+        {tripResult?.encoded_polyline && (
+          <RoutePolyline encodedPolyline={tripResult.encoded_polyline} />
         )}
 
         {/* Scenic anchor waypoints from backend */}

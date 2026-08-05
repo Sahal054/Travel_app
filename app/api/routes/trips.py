@@ -88,6 +88,7 @@ async def plan_trip(
             ),
             waypoints=[],
             cache_hit=cache_hit,
+            encoded_polyline=encoded_polyline,
         )
 
     # ── Scenic: bounding box macro search ────────────────────────────────────
@@ -122,4 +123,5 @@ async def plan_trip(
         ),
         waypoints=waypoints,
         cache_hit=cache_hit,
+        encoded_polyline=encoded_polyline,
     )

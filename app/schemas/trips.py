@@ -31,3 +31,4 @@ class TripPlanResponse(BaseModel):
     native_maps_url: str
     waypoints: List[InjectedWaypoint]
     cache_hit: bool
+    encoded_polyline: str | None = None
